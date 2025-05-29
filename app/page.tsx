@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Deck from './components/Deck';
 
 export default function Home() {

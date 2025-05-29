@@ -114,7 +114,7 @@ const Deck: React.FC = () => {
       </div>
       
       {cards.length > 0 && (
-        <div className="deck-info">
+        <div className="deck-info mt-4">
           Showing {cards.length} cards (no 8s, 9s, or 10s)
         </div>
       )}
