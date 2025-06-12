@@ -1,4 +1,3 @@
-// src/types.ts
 export interface Card {
   code: string;
   image: string;

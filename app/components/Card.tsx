@@ -1,28 +1,33 @@
-// src/components/Card.tsx
-import React, {useState} from 'react';
-import { Card as CardType } from '../types';
+import React from 'react';
+import { Card as CardType } from '../models/types';
 
 interface CardProps {
   card: CardType;
+  isPlayed?: boolean;
+  showFront?: boolean; // New prop to control front/back display
 }
 
-const Card: React.FC<CardProps> = ({ card }) => {
-    const [isFlipped, setIsFlipped] = useState<boolean>(false);
-
-    const handleClick = () => {
-        setIsFlipped(!isFlipped);
-    };
-    
+const Card: React.FC<CardProps> = ({ card, isPlayed = false, showFront = false }) => {
   return (
-    <div className={`flip-card-container ${!isFlipped ? 'flipped' : ''}`} onClick={handleClick}>
-        <div className="flip-card-inner">
-            <div className="card-front">
-                <img className='card-front-image' src={card.image} alt={`${card.value} of ${card.suit}`} />
-            </div>
-            <div className="card-back">
-                <img className='card-back-image' src="GreenCardBack.png" />
-            </div>
+    <div className="card-container">
+      {/* Show front if card is played OR showFront is true */}
+      {(isPlayed || showFront) ? (
+        <div className="card-front">
+          <img 
+            className="card-image" 
+            src={card.image} 
+            alt={`${card.value} of ${card.suit}`} 
+          />
         </div>
+      ) : (
+        <div className="card-back">
+          <img 
+            className="card-image" 
+            src="GreenCardBack.png" 
+            alt="Card back" 
+          />
+        </div>
+      )}
     </div>
   );
 };

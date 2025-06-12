@@ -2,7 +2,7 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import Card from './Card';
-import { DeckResponse, DrawResponse, Card as CardType } from '../types';
+import { DeckResponse, DrawResponse, Card as CardType } from '../models/types';
 // import './Deck.css';
 
 const Deck: React.FC = () => {

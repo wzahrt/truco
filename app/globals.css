@@ -88,24 +88,18 @@ body {
   margin: 10px 0;
 }
 
-
-.flip-card-container {
+/* Card styling - keeps your container sizing */
+.card-container {
   width: 200px;
   height: 300px;
   perspective: 1000px;
-  cursor: pointer;
 }
 
-.flip-card-inner {
-  position: relative;
+.card-image {
   width: 100%;
   height: 100%;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-}
-
-.flip-card-container.flipped .flip-card-inner {
-  transform: rotateY(180deg);
+  object-fit: contain;
+  border-radius: 8px;
 }
 
 .card-front,
@@ -120,6 +114,59 @@ body {
   object-fit: cover;
 }
 
-.card-back {
-  transform: rotateY(180deg);
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+}
+
+.player-hand {
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #f5f5f5;
+  margin: 10px;
+  transition: all 0.3s ease;
+}
+
+.player-hand.active-turn {
+  background-color: #ffeb3b;
+  box-shadow: 0 0 10px rgba(255, 235, 59, 0.5);
+  transform: scale(1.02);
+}
+
+.player-hand.active-turn .card-container {
+  cursor: pointer;
+}
+
+.cards-grid {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.played-cards {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  min-height: 120px;
+  margin: 20px 0;
+}
+
+.game-status {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.deal-button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 10px;
 }
