@@ -34,12 +34,12 @@ const Deck: React.FC = () => {
     }
   };
 
+        // Draw a singular card (for placing the trump card)
+
   const drawCard = async () => {
     if (!deckId) return;
-
     setLoading(true);
     try {
-      // Draw a singular card (for placing the trump card)
       const response = await fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`);
       const data: DrawResponse = await response.json();
 
@@ -57,12 +57,12 @@ const Deck: React.FC = () => {
     }
   };
 
+  // Draw 3 cards for Truco hands
   const drawThree = async () => {
     if (!deckId) return;
 
     setLoading(true);
     try {
-      // Draw 3 cards for Truco hands
       const response = await fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=3`);
       const data: DrawResponse = await response.json();
 

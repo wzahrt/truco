@@ -78,17 +78,11 @@ body {
   height: auto;
 }
 
-.card-info {
-  margin-top: 8px;
-  font-size: 18px;
-}
-
 .error {
   color: red;
   margin: 10px 0;
 }
 
-/* Card styling - keeps your container sizing */
 .card-container {
   width: 200px;
   height: 300px;

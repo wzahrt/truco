@@ -207,7 +207,7 @@ useEffect(() => {
         ))}
       </div>
 
-      <div className="hands-container">
+      <div>
         {playerHands.map((hand, index) => (
           <div 
             key={`player-${index}`} 

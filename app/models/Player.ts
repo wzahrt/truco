@@ -31,7 +31,6 @@ export class Player {
     return playedCard;
   }
 
-  // Get current hand
   public getHand(): Card[] {
     return [...this.hand]; // Return copy to prevent direct manipulation
   }
