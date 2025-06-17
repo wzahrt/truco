@@ -36,7 +36,7 @@ export class Player {
   }
 
   public getCardsPlayed(): Card[] {
-    return [...this.hand];
+    return [...this.cardsPlayed];
   }
 
   public clearHand(): void {
