@@ -5,9 +5,9 @@ export class Player {
   private hand: Card[];
   private cardsPlayed: Card[];
   private isBot: boolean;
-  private team?: number;
+  private team: string;
 
-  constructor(id: number, name: string = 'Newbie', isBot: boolean = false, team?: number) {
+  constructor(id: number, name: string = 'Newbie', isBot: boolean = false, team: string) {
     this.id = id;
     this.name = name;
     this.hand = [];
@@ -56,7 +56,7 @@ export class Player {
     return this.isBot;
   }
 
-  public getTeam(): number | undefined {
+  public getTeam(): string {
     return this.team;
   }
 

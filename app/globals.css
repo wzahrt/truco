@@ -164,3 +164,9 @@ body {
   font-size: 16px;
   margin: 10px;
 }
+
+.scores {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
