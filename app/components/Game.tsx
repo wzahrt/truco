@@ -7,7 +7,7 @@ import Card from './Card';
 import { Bellota_Text } from 'next/font/google';
 
 const Game: React.FC = () => {
-  const whoStartsRound = Math.floor(Math.random() * 4); 
+  const [whoStartsRound, setWhoStartsRound] = useState<number>(Math.floor(Math.random() * 4)); 
   const [players, setPlayers] = useState<Player[]>([]);
   const [playerHands, setPlayerHands] = useState<Cards[][]>([[], [], [], []]);
   const [topCard, setTopCard] = useState<Cards | null>(null);
@@ -21,7 +21,10 @@ const Game: React.FC = () => {
   const [gamePhase, setGamePhase] = useState<'dealing' | 'playing' | 'trick-complete' | 'round-complete'>('dealing');
   const [trickWinner, setTrickWinner] = useState<string>("");
   const [roundWinner, setRoundWinner] = useState<string>("");
-  const [previouslyTied, setTie] = useState<boolean>(false);
+  const [aTeamName, setATeamName] = useState<string>("A");
+  const [bTeamName, setBTeamName] = useState<string>("B");
+  const [firstTied, setFirstTie] = useState<boolean>(false);
+  const [secondTied, setSecondTie] = useState<boolean>(false);
   const [aTeamTricksWon, setATeamTricksWon] = useState<number>(0);
   const [bTeamTricksWon, setBTeamTricksWon] = useState<number>(0);
   const [trickOneWinner, setTrickOneWinner] = useState<string>("");
@@ -37,9 +40,13 @@ const startNewRound = async (playersArray?: Player[]) => {
   setRound(prev => prev + 1);
   setPlayedCards([]);
   setTrick(1);
-  setTie(false);
+  setFirstTie(false);
+  setSecondTie(false);
   setATeamTricksWon(0);
   setBTeamTricksWon(0);
+  setTrickOneWinner("");
+  setTrickTwoWinner("");
+  setTrickThreeWinner("");
   setCurrentPlayerIndex((round + whoStartsRound) % 4);
   await dealCards(playersArray || players);
   await decideTrump()
@@ -103,48 +110,57 @@ const decideTrickWinner = (cardsOut: Cards[], currentTrump: string) => {
 
   for (let i = 0; i < 4; i++) {
     const currentCard = cardsOut[i];
-    console.log(currentCard);
     if (currentCard.value == currentTrump) { // If someone plays a trump card decide who the winner is from that
       if (suitOrder.indexOf(currentCard.suit) > highestSuit) {
         highestSuit = suitOrder.indexOf(currentCard.suit);
         winnerIndex = i;
-        setTie(false);
         tie = false;
       }
     } else if (cardRanking.indexOf(currentCard.value) > highestCardIndex && highestSuit == -1) {
       highestCardIndex = cardRanking.indexOf(currentCard.value);
       winnerIndex = i;
-      setTie(false);
       tie = false;
-    } else if (cardRanking.indexOf(currentCard.value) == highestCardIndex) {
+    } else if (cardRanking.indexOf(currentCard.value) == highestCardIndex && highestSuit == -1) {
       winnerIndex = i;
-      setTie(true);
+      if (firstTied) {
+        setSecondTie(true);
+      }
+      setFirstTie(true);
       tie = true;
     }
   }
-  console.log("before tie block");
+
+  const winner = orderOfPlayers[winnerIndex];
+  console.log("the winner is ", winner);
+  setTrickWinner(winner.getName());
 
   if (tie) {
-    const winner = orderOfPlayers[winnerIndex];
-    setTrickWinner(winner.getName());
+    setTrickWinner(winner.getName() + " won the tie!");
     setCurrentPlayerIndex(players.indexOf(winner)); // Set the first player of the next trick to be the player who tied the current trick.
-    if (previouslyTied && (aTeamTricksWon == 1 || bTeamTricksWon == 1)) {
-      determineWinner(winner, trick);
+      if (!firstTied && trick == 2) { // This determines the round winner to be the winner of the first trick if the second trick is a tie.
+        if(trickOneWinner == aTeamName) {
+          setATeamPoints(aTeamPoints + 1);
+        } else {
+          setBTeamPoints(bTeamPoints + 1);
+        }
+        completeRound(trickOneWinner);
+        return;
+      }
+    if (trick == 3) { // In the case of the first two tricks being ties determine the winner of this third trick based on who played the last tying card.
+      determineWinner(winner, trick, true);
     }
     return;
   }
 
-  console.log("after tie block");
+  if (firstTied && trick == 2) {  // This immediately determines the round winner to be the winner of the second trick if the first trick was a tie.
+    determineWinner(winner, trick, true);
+  }
 
-
-  const winner = orderOfPlayers[winnerIndex];
-  console.log("the winner is ", winner);
   determineWinner(winner, trick);
-  setTrickWinner(winner.getName());
   setCurrentPlayerIndex(players.indexOf(winner)); // Set the first player of the next trick to the winner of this trick.
 }
 
-const determineWinner = (winner: Player, trick: number) => {
+const determineWinner = (winner: Player, trick: number, tiedWin?: boolean, ) => {
   switch (trick) {
     case 1:
       setTrickOneWinner(winner.getTeam());
@@ -158,15 +174,23 @@ const determineWinner = (winner: Player, trick: number) => {
   }
   if (players.indexOf(winner) % 2 == 0) {
     setATeamTricksWon(aTeamTricksWon + 1);
-    if (aTeamTricksWon == 1) {
-      setATeamPoints(aTeamPoints + 1); // If Team A already one a trick and wins another they win the round and get points
-      completeRound("A");
+    if (tiedWin) {  // If Team A plays the last tying card on a three round tie they win the round.
+      setATeamPoints(aTeamPoints + 1);
+      completeRound(aTeamName);
+    }
+    if (aTeamTricksWon == 1 || trick == 3) {
+      setATeamPoints(aTeamPoints + 1); // If Team A already won a trick and wins another they win the round and get points
+      completeRound(aTeamName);
     }
   } else {
     setBTeamTricksWon(bTeamTricksWon + 1);
-    if (bTeamTricksWon == 1) {
-      setBTeamPoints(bTeamPoints + 1); // If Team B already one a trick and wins another they win the round and get points
-      completeRound("B");
+    if (tiedWin) {  // If Team B plays the last tying card on a three round tie they win the round.
+      setBTeamPoints(bTeamPoints + 1);
+      completeRound(bTeamName);
+    }
+    if (bTeamTricksWon == 1 || trick == 3) {
+      setBTeamPoints(bTeamPoints + 1); // If Team B already won a trick and wins another they win the round and get points
+      completeRound(bTeamName);
     }
   }
 }
@@ -196,12 +220,14 @@ const handlePlayCard = (playerIndex: number, cardIndex: number) => {
 const completeTrick = (cardsOut: Cards[]) => {
   setGamePhase('trick-complete');
   decideTrickWinner(cardsOut, trump);
-  setTrick(prev => prev + 1);
+  if (trick < 3)  {
+    setTrick(prev => prev + 1);
+  }
 };
 
-const completeRound = (winner: string) => {
+const completeRound = (team: string) => {
   setGamePhase('round-complete');
-  setRoundWinner(winner);
+  setRoundWinner(team);
   // Determine winner, update scores, etc.
 };
 
@@ -268,7 +294,7 @@ useEffect(() => {
           <p>Current turn: Player {currentPlayerIndex + 1}</p>
         )}
         {gamePhase === 'trick-complete' && (
-          previouslyTied ? (<p>It's a tie! Points go to team that played the last tying card.</p>) : (<p>Trick complete! Winner: {trickWinner}</p>)
+          <p>Trick complete! Winner: {trickWinner}</p>
         )}
         {gamePhase === 'round-complete' && (
           <p>Round complete! Team {roundWinner} wins the round!</p>
