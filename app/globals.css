@@ -170,3 +170,71 @@ body {
   flex-direction: row;
   justify-content: center;
 }
+
+.call-family-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background-color: brown;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  z-index: 100;
+}
+
+.call-family-button:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.family-div {
+  margin: 20px 0;
+  background-color: lightcoral;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.family-title-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  margin: 1rem 0;
+}
+
+.family-title {
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: black; /* Gold color */
+  text-align: center;
+}
+
+.family-button {
+  padding: 0.5rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.call-button {
+  background-color: white; /* Green */
+  color: black;
+}
+
+.accept-button {
+  background-color: black; /* Red */
+  color: white;
+}
+
+.family-button:hover {
+  transform: scale(1.05);
+}
+
+.family-button:active {
+  transform: scale(0.98);
+}

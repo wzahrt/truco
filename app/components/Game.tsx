@@ -18,7 +18,7 @@ const Game: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState<number>(whoStartsRound);
   const [playedCards, setPlayedCards] = useState<Cards[]>([]);
-  const [gamePhase, setGamePhase] = useState<'dealing' | 'playing' | 'trick-complete' | 'round-complete'>('dealing');
+  const [gamePhase, setGamePhase] = useState<'dealing' | 'playing' | 'trick-complete' | 'round-complete' | 'family' | 'sequence'>('dealing');
   const [trickWinner, setTrickWinner] = useState<string>("");
   const [roundWinner, setRoundWinner] = useState<string>("");
   const [aTeamName, setATeamName] = useState<string>("A");
@@ -32,6 +32,9 @@ const Game: React.FC = () => {
   const [trickThreeWinner, setTrickThreeWinner] = useState<string>("");
   const [aTeamPoints, setATeamPoints] = useState<number>(0);
   const [bTeamPoints, setBTeamPoints] = useState<number>(0);
+  const [famHand, setFamHand] = useState<Cards[]>([]);
+  const [flippedCards, setFlippedCards] = useState<boolean[]>([]);
+  const [truthfulFamily, setTruthfulFamily] = useState<boolean>();
   const cardRanking: Array<string> = ['4', '5', '6', '7', 'QUEEN', 'JACK', 'KING', 'ACE', '2', '3'];
   const suitOrder: Array<string> = ["DIAMONDS", "SPADES", "HEARTS", "CLUBS"];
 
@@ -217,6 +220,33 @@ const handlePlayCard = (playerIndex: number, cardIndex: number) => {
   }
 };
 
+const callFamily = () => {
+  if (trick != 1) { // TODO: If Truco is called first then you also can't call family.
+    return
+  }
+  setGamePhase("family");
+  const callerHand = players[currentPlayerIndex].getHand()
+  const opponents = players[(currentPlayerIndex + 1) % 4].getTeam();
+  setFamHand(callerHand);
+
+  let allFaceCards = true;
+  for (const card of callerHand) {
+    if (card.value !== "KING" && card.value !== "JACK" && card.value !== "QUEEN") {
+      allFaceCards = false;
+      break;
+    } 
+  }
+  setTruthfulFamily(allFaceCards);
+}
+
+const handleFlipCard = (cardIndex: number) => {
+  setFlippedCards(prev => {
+    const newFlipped = [...prev];
+    newFlipped[cardIndex] = !newFlipped[cardIndex]; // Toggle the flip state
+    return newFlipped;
+  });
+}
+
 const completeTrick = (cardsOut: Cards[]) => {
   setGamePhase('trick-complete');
   decideTrickWinner(cardsOut, trump);
@@ -253,7 +283,22 @@ useEffect(() => {
   return (
     
     <div className="game-container">
-      <h1>Truco Game - Round {round}, Trick {trick}</h1>
+      <button 
+          onClick={callFamily}
+          className="call-family-button"
+        >
+          Call Family
+        </button>
+      {gamePhase !== 'family' && (
+        <button 
+          onClick={callFamily}
+          className="call-family-button"
+        >
+          Call Family
+        </button>
+      )}
+
+      <h1>Truco GAME! - Round {round}, Trick {trick}</h1>
       
       {error && <div className="error">{error}</div>}
 
@@ -311,6 +356,31 @@ useEffect(() => {
           <Card key={`played-${index}`} card={card} isPlayed={true} />
         ))}
       </div>
+
+      {gamePhase === 'family' && (
+        <div className='family-div'>
+          <div className="family-title-container">
+            <button className="family-button call-button">Call</button>
+            <h1 className="family-title">Family</h1>
+            <button className="family-button accept-button">Accept</button>
+          </div>
+          <div className="cards-grid">
+            {famHand.map((card, cardIndex) => (
+              <div 
+                key={card.code} 
+                onClick={() => handleFlipCard(cardIndex)}
+                style={{ cursor: 'pointer' }}
+              >
+                <Card 
+                  card={card} 
+                  isPlayed={false}
+                  showFront={flippedCards[cardIndex] || false} 
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div>
         {playerHands.map((hand, index) => (

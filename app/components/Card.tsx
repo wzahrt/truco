@@ -10,7 +10,6 @@ interface CardProps {
 const Card: React.FC<CardProps> = ({ card, isPlayed = false, showFront = false }) => {
   return (
     <div className="card-container">
-      {/* Show front if card is played OR showFront is true */}
       {(isPlayed || showFront) ? (
         <div className="card-front">
           <img 
